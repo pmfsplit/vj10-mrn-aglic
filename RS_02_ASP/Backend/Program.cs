@@ -1,5 +1,6 @@
 ﻿using System;
 using Akka.Actor;
+using Akka.Cluster.Tools.Client;
 using AkkaConfigProvider;
 
 namespace Backend
@@ -17,7 +18,15 @@ namespace Backend
 
             using (var system = ActorSystem.Create("backend", akkaConfig))
             {
+                var props = Props.Create(() => new ManagerActor());
+                var managerActor = system.ActorOf(props, "manager");
                 
+                var receptionist = ClusterClientReceptionist.Get(system);
+                receptionist.RegisterService(managerActor);
+
+                Console.ReadLine();
+                CoordinatedShutdown.Get(system).Run(CoordinatedShutdown.ActorSystemTerminateReason.Instance)
+                    .Wait();
             }
         }
     }

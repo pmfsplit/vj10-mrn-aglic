@@ -4,9 +4,9 @@ namespace Backend
 {
     public class AkkaConfig : Shared.AkkaConfig
     {
-        [JsonProperty(PropertyName = "actor")]
+        [JsonProperty(PropertyName = "actor")] 
         public new ActorConfig Actor { get; set; }
-        
+
         [JsonProperty(PropertyName = "cluster")]
         public ClusterConfig Cluster { get; set; }
 
@@ -17,11 +17,11 @@ namespace Backend
         {
             [JsonProperty(PropertyName = "deployment")]
             public DeploymentConfig Deployment { get; set; }
-            
+
             public class DeploymentConfig
             {
-                [JsonProperty(PropertyName = "/routerContainer/router")]
-                public RouterConfig RouterContainer_Router { get; set; }
+                [JsonProperty(PropertyName = "/manager/router")]
+                public RouterConfig Manager_Router { get; set; }
 
                 public class RouterConfig
                 {
@@ -48,7 +48,7 @@ namespace Backend
                 }
             }
         }
-        
+
         public class ClusterConfig
         {
             [JsonProperty(PropertyName = "seed-nodes")]
