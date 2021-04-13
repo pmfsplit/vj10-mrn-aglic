@@ -1,8 +1,12 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Akka.Actor;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
+using RS_01.Actors;
 using RS_01.DtoMappers;
 using RS_01.Models;
+using Shared;
 
 namespace RS_01.Controllers
 {
@@ -10,40 +14,29 @@ namespace RS_01.Controllers
     [ApiController]
     public class StudentsApiController : Controller
     {
-        private List<Student> _students;
-
-        public StudentsApiController()
-        {
-            _students = new List<Student>();
-
-            _students.Add(
-                new Student(0,"Ante", "Antic", "01123", "aa@pmfst.hr", 280, true)
-            );
-            _students.Add(
-                new Student(1, "Marko", "Markic", "00022", "mm@pmfst.hr", 330, false)
-            );
-            _students.Add(
-                new Student(2, "Ivka", "Ivkic", "1123", "ii@pmfst.hr", 300, true)
-            );
-        }
-
         [HttpGet]
-        public ActionResult<List<Student>> Get()
+        public async Task<ActionResult<JArray>> Get()
         {
-            return _students;
+            var props = Props.Create(() => new ConnectionActor(AkkaService.CClientSettings));
+            var actor = AkkaService.ActorSys.ActorOf(props);
+            var result = await actor.Ask<JArray>(new GetAll());
+            return result;
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Student> Get(int id)
+        public async Task<ActionResult<Student>> Get(int id)
         {
-            return _students.Find(x => x.Id == id);
+            var props = Props.Create(() => new ConnectionActor(AkkaService.CClientSettings));
+            var actor = AkkaService.ActorSys.ActorOf(props);
+
+            var result = await actor.Ask<JObject>(new Get(id));
+            var student = StudentDto.FromJson(result);
+            return Ok(student);
         }
 
         [HttpPost("save")]
         public ActionResult Save([FromBody] JObject json)
         {
-            var student = StudentDto.FromJson(json);
-            _students.Add(student);
             return Ok();
         }
     }

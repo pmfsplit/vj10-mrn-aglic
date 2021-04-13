@@ -25,6 +25,9 @@ namespace RS_01
         {
             services.AddMvc().AddNewtonsoftJson();
             services.AddControllersWithViews();
+
+            services.AddSingleton(provider => new AkkaService(Configuration));
+            services.AddHostedService(provider => provider.GetService<AkkaService>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
